@@ -29,55 +29,58 @@
 
 export const leftNavItems = [
   {
-    name: "Getting started",
-    parentSlug: "getting-started",
-    url: "/postman-flows/getting-started/flows-overview/",
+    name: "Labs Overview",
+    parentSlug: "labs-overview",
+    url: "/labs-overview/",
+    subMenuItems1: [],
+    caret: false,
+  },
+  {
+    name: "Postman Flows",
+    parentSlug: "postman-flows",
+    url: "https://learning.postman.com/docs/postman-flows/flows-intro/flows-overview/",
+    subMenuItems1: [],
+    caret: false,
+  },
+  {
+    name: "GraphQL Client",
+    parentSlug: "graphql-client",
+    url: "/postman-api-client/graphql-client/graphql-client-overview/",
+    caret: true,
     subMenuItems1: [
       {
-        name: "Introduction",
-        url: "/postman-flows/getting-started/flows-overview/",
+        name: "GraphQL overview",
+        url: "/postman-api-client/graphql-client/graphql-client-overview/"
       },
       {
-        name: "The Interface",
-        url: "/postman-flows/getting-started/the-interface/",
+        name: "Using GraphQL request interface",
+        url: "/postman-api-client/graphql-client/graphql-request-interface/"
       },
       {
-        name: "Running requests in sequence",
-        url: "/postman-flows/getting-started/running-requests-in-sequence/",
-      },
-      {
-        name: "Chaining requests with data",
-        url: "/postman-flows/getting-started/chaining-requests-with-data/",
-      },
-      {
-        name: "Working with access tokens - Durables",
-        url: "/postman-flows/getting-started/working-with-access-tokens/",
+        name: "Making your first GraphQL query",
+        url: "/postman-api-client/graphql-client/first-graphql-request/"
       },
     ],
   },
   {
-    name: "Core concepts",
-    parentSlug: "core-concepts",
-    url: "/postman-flows/core-concepts/blocks/",
+    name: "gRPC Client",
+    parentSlug: "grpc-client",
+    url: "https://learning.postman.com/docs/sending-requests/grpc/grpc-client-overview/",
+    subMenuItems1: [],
+    caret: false,
+  },
+  {
+    name: 'WebSocket Client',
+    parentSlug: 'websocket-client',
+    url: '/postman-api-client/websocket-client/websocket-client-overview/',
+    caret: true,
     subMenuItems1: [
       {
-        name: "Blocks",
-        url: "/postman-flows/core-concepts/blocks/",
-      },
-      {
-        name: "Messages",
-        url: "/postman-flows/core-concepts/messages/",
-      },
-      {
-        name: "Connections",
-        url: "/postman-flows/core-concepts/connections/",
-      },
-      {
-        name: "Data Types",
-        url: "/postman-flows/core-concepts/data-types/",
-      },
+        name: 'Using WebSocket requests',
+        url: '/postman-api-client/websocket-client/websocket-client-overview/',
+      },             
     ],
   },
-]
+];
 
 // export default parentSlugItems;

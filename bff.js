@@ -1,11 +1,12 @@
 const fs = require('fs');
 const sh = require('shelljs');
 const crypto = require('crypto');
-const pingWebHook = require('./scripts/pingWebHook');
-const fetchBlogPosts = require('./scripts/fetchBlogPosts');
-const fetchEvents = require('./scripts/fetchEvents');
-const fetchPmTech = require('./scripts/fetchPmTech');
+const pingWebHook = require('./build/pingWebHook');
+const fetchBlogPosts = require('./build/fetchBlogPosts');
+const fetchFooter = require('./build/fetchFooter');
+const fetchNavbar = require('./build/fetchNavbar');
 const { allow } = require('./package.json');
+const fetchNavtopicsdropdown = require('./build/fetchNavtopicsdropdown');
 
 const { pmTech: allowedPmTech } = allow;
 const delay = 1000;
@@ -41,14 +42,16 @@ const prefetch = async () => {
   sh.exec('mkdir -p bff-data');
   await pingWebHook();
   fetchBlogPosts();
-  fetchEvents();
+  fetchFooter();
+  fetchNavbar();
+  fetchNavtopicsdropdown();
 
   let pmTech = '';
 
-  if (process.env.PM_TECH) {
-    pmTech = await fetchPmTech();
-
-    pmTech = pmTech;
+  if (process.env.PM_TECH_RT) {
+    sh.config.silent = true;
+    pmTech = sh.exec('cat build/pmt.js').stdout;
+    sh.config.silent = false;
 
     sh.exec('mkdir -p public');
 
@@ -75,38 +78,55 @@ const prefetch = async () => {
     });
   }
 
-  /* eslint-disable */
-  const script = (process.env.PM_TECH
+  const UACode = 'UA-43979731-18';
+  const GTMCode = 'GTM-M42M5N';
+  const googleTagManager = `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','${GTMCode}');`;
+
+  const script = (process.env.PM_TECH_RT
       && `
 ${pmTech}
-if (typeof window.pm.scalp !== 'function') {
-  window.pm.setScalp({
-    property: 'postman-docs'
-  });
-}
-window.pm.driveCampaignId();
-function isPmTechAllowed(documentLocationPathname) {
-  return ${allowedPmTech[0] === '*' ||
-    allowedPmTech.indexOf(documentLocationPathname) !== -1};
-}
-var d = 1000, int;
-var int = setInterval(function(){
-  if (document.body) {
-    window.pm.scalp(
+setTimeout(function(){
+  var propertyName = 'labs-docs';
+  if (window.pmt) {
+    window.pmt('setScalp', [{
+      property: propertyName
+    }]);
+    window.pmt('scalp', [
       'pm-analytics',
       'load',
       document.location.pathname
-    );
-    window.pm.trackClicks();
-
-    clearInterval(int);
+    ]);
+    window.pmt('trackClicks');
+    var dnt = (parseInt(navigator.doNotTrack) === 1 || parseInt(window.doNotTrack) === 1 || parseInt(navigator.msDoNotTrack) === 1 || navigator.doNotTrack === "yes");
+    window.pmt('log', ['navigator.doNotTrack: ' + dnt]);
+    if(!dnt) {
+      ${googleTagManager}
+      window.pmt('log', ['attached googletagmanager: ' + '${GTMCode}']);
+      var d = 1000, int;
+      var int = setInterval(function(){
+        if (window.ga) {
+          var sitename = document.location.hostname;
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          window.gtag = gtag;
+          gtag('js', new Date());
+          window.pmt('ga', ['${UACode}', sitename]);
+          window.pmt('log', ['initialized GA: ' + sitename + ' (' + '${UACode}' + ')']);
+          window._iaq = window._iaq || {};
+          clearInterval(int);
+        }
+      }, d);
+    }
   }
-}, d);
-    `)
-    || `
-      console.info('Postman OSS');
-    `;
-  /* eslint-enable */
+}, 1000);
+`)
+|| `
+  console.info('Postman OSS');
+`;
 
   fs.writeFile('bff.json', JSON.stringify({ script }), (err) => {
     if (err) {
